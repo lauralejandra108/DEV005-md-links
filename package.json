@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "colors": "^1.4.0",
-    "eslint": "^8.40.0"
+    "eslint": "^8.40.0",
+    "jsdom": "^22.0.0",
+    "markdown-it": "^13.0.1"
   },
   "scripts": {
     "test": "jest"
