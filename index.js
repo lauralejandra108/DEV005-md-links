@@ -42,10 +42,10 @@ console.log( 'Ruta Absoluta'.bgMagenta, absolutePath);
  new Promise((resolve, reject) => {
   fs.readFile( arryMd, 'utf8', (err, data) => {
     if (err) reject(new Error(err));
-      resolve(data);
+      resolve(getLinks(arryMd, data));
   });
  });
-  const readMds = (arryMd) =>{
+  /* const readMds = (arryMd) =>{
     return Promise.all(arryMd.map((element) => readMd(element)))
     .then((results) => {
       
@@ -56,13 +56,12 @@ console.log( 'Ruta Absoluta'.bgMagenta, absolutePath);
   });
    };
      readMds(arryMd);
-   
+    */
 // Extraer links de archivos
-const getLinks = (file) => {
+const getLinks = (file, data) => {
   let allLinks = [];
-  file.forEach((e) => {
   const md = new markdownIt();
-  const content = md.render(e);
+  const content = md.render(data);
   const dom = new JSDOM(content);
   const { document } = dom.window;
   const links = document.querySelectorAll('a');
@@ -70,15 +69,15 @@ const getLinks = (file) => {
     links.forEach((link) => {
       const href = link.getAttribute('href');
       const text = link.textContent;
-      const file = route;
       if (href.startsWith('https')){
       allLinks.push({ href, text, file });
       }
      });
-    });
  return allLinks;
   };
-  
+  module.exports = {
+    readMd, recursive, route
+  }
 
 /* const getLinks = (data) => {
   let url =  /\[([^\[\]]*?)\]\((https?:\/\/[^\s$.?#].[^\s]*)\)/g ;
