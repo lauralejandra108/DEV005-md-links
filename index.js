@@ -1,89 +1,82 @@
-
 const colors = require('colors');
 const fs = require('fs');
 const path = require('path');
-const markdownIt = require('markdown-it');
+const MarkdownIt = require('markdown-it');
 const { JSDOM } = require('jsdom');
+
 const route = process.argv[2];
 // Validar si existe una ruta
-//const route = '/Users/LauraAlejandra/Documents/YOGA BOOK';
-/* const route = '/Users/LauraAlejandra/Documents/pruebaMdL'; */
-let fileExists = fs.existsSync(route);
-console.log('exists:', fileExists);
+// const route = '/Users/LauraAlejandra/Documents/YOGA BOOK';
+// const route = '/Users/LauraAlejandra/Documents/pruebaMdL';
 
-//
+const fileExists = (route) => fs.existsSync(route);
+// console.log('exists:', fileExists);
+// Convertir a ruta absoluta
+// eslint-disable-next-line no-shadow
+const absolutePath = (route) => path.resolve(route);
+// console.log( 'Ruta Absoluta'.bgMagenta, absolutePath);
+
 const recursive = (route) => {
   let arryMd = [];
-  if (fs.statSync(route).isFile() &&  path.extname === '.md'){
-    arryMd.push(route);
+  if (fs.statSync(route).isFile()) {
+    const absolutP = absolutePath(route);
+    arryMd.push(absolutP);
   } else {
-    files = fs.readdirSync(route);
-    files.forEach(file => {
-      let  newroute = path.join(route, file);
-      if(fs.statSync(newroute).isDirectory()){
-        arryMd = arryMd.concat(recursive(newroute));
+    const files = fs.readdirSync(route);
+    files.forEach((file) => {
+      const newroute = path.join(route, file);
+      const absolutP = absolutePath(newroute);
+      if (fs.statSync(newroute).isDirectory()) {
+        arryMd = arryMd.concat(recursive(absolutP));
       } else {
         arryMd.push(newroute);
       }
-  })
-}
-return  arryMd.filter(file => path.extname(file) === '.md');
- }
- const arryMd = recursive(route);
-console.log('funciona', recursive(route));
+    });
+  }
+  return arryMd.filter((file) => path.extname(file) === '.md');
+};
+// const arryMd = recursive(route);
+// console.log('funciona', recursive(route));
 
-
-//Convertir a ruta absoluta
-const absolutePath = path.resolve(route);
-console.log( 'Ruta Absoluta'.bgMagenta, absolutePath);
-
-// Leer los arhivos 
- const readMd = (arryMd) => 
- new Promise((resolve, reject) => {
-  fs.readFile( arryMd, 'utf8', (err, data) => {
-    if (err) reject(new Error(err));
-      resolve(getLinks(arryMd, data));
-  });
- });
-  /* const readMds = (arryMd) =>{
-    return Promise.all(arryMd.map((element) => readMd(element)))
-    .then((results) => {
-      
-      console.log(getLinks(results) ); 
-    })
-    .catch((error) => {
-  console.error(error);
-  });
-   };
-     readMds(arryMd);
-    */
 // Extraer links de archivos
 const getLinks = (file, data) => {
-  let allLinks = [];
-  const md = new markdownIt();
+  const allLinks = [];
+  const md = new MarkdownIt();
   const content = md.render(data);
   const dom = new JSDOM(content);
   const { document } = dom.window;
   const links = document.querySelectorAll('a');
 
-    links.forEach((link) => {
-      const href = link.getAttribute('href');
-      const text = link.textContent;
-      if (href.startsWith('https')){
+  links.forEach((link) => {
+    const href = link.getAttribute('href');
+    const text = link.textContent;
+    if (href.startsWith('https')) {
       allLinks.push({ href, text, file });
-      }
-     });
- return allLinks;
-  };
-  module.exports = {
-    readMd, recursive, route
-  }
+    }
+  });
+  return allLinks;
+};
+
+// Leer los arhivos
+const readMd = (arryMd) => new Promise((resolve, reject) => {
+  fs.readFile(arryMd, 'utf8', (err, data) => {
+    if (err) reject(new Error(err));
+    resolve(getLinks(arryMd, data));
+  });
+});
+
+module.exports = {
+  readMd,
+  recursive,
+  route,
+  fileExists,
+};
 
 /* const getLinks = (data) => {
   let url =  /\[([^\[\]]*?)\]\((https?:\/\/[^\s$.?#].[^\s]*)\)/g ;
   let arrayL = data.toString().match(url)
 if(arrayL && arrayL!== undefined){
-    return  arrayL  
+    return  arrayL
 }
 };
 console.log('Esto me trae links', getLinks(arryMd)); */
