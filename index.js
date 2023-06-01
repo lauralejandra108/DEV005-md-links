@@ -3,12 +3,15 @@ const fs = require('fs');
 const path = require('path');
 const MarkdownIt = require('markdown-it');
 const { JSDOM } = require('jsdom');
+const fetch = require('node-fetch');
+const { resourceLimits } = require('worker_threads');
 
 const route = process.argv[2];
 // Validar si existe una ruta
 // const route = '/Users/LauraAlejandra/Documents/YOGA BOOK';
-// const route = '/Users/LauraAlejandra/Documents/pruebaMdL';
+// const route = '/Users/LauraAlejanxdra/Documents/pruebaMdL';
 
+// eslint-disable-next-line no-shadow
 const fileExists = (route) => fs.existsSync(route);
 // console.log('exists:', fileExists);
 // Convertir a ruta absoluta
@@ -16,6 +19,7 @@ const fileExists = (route) => fs.existsSync(route);
 const absolutePath = (route) => path.resolve(route);
 // console.log( 'Ruta Absoluta'.bgMagenta, absolutePath);
 
+// eslint-disable-next-line no-shadow
 const recursive = (route) => {
   let arryMd = [];
   if (fs.statSync(route).isFile()) {
@@ -64,12 +68,39 @@ const readMd = (arryMd) => new Promise((resolve, reject) => {
     resolve(getLinks(arryMd, data));
   });
 });
+const validateLinks = (links) => Promise.all(links.map((link) => fetch(link.href)
+  .then((response) => {
+    // const validateLink = {
+    link.status = response.status;
+    link.statusText = response.statusText;
+    // }>
+    return link;
+  })
+  .catch((error) => {
+    console.log('Error', error);
+  })));
 
+const linkStats = (links) => {
+  const totaLinks = links.length;
+  const unique = new Set(links.map((item) => item.href));
+  const uniqueCount = unique.size;
+  return (`Totals: ${totaLinks} Unique: ${uniqueCount}`);
+};
+const brokenLinks = (links) => {
+  const brokenCount = links.filter((result) => result.Status !== 'OK').length;
+  return (brokenCount);
+};
 module.exports = {
   readMd,
   recursive,
   route,
   fileExists,
+  validateLinks,
+  getLinks,
+  // eslint-disable-next-line no-dupe-keys
+  fileExists,
+  linkStats,
+  brokenLinks
 };
 
 /* const getLinks = (data) => {
