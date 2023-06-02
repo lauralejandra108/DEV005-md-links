@@ -12,8 +12,10 @@ Si pasamos la opción --validate, el módulo debe hacer una petición HTTP para 
 Si pasamos la opción --stats el output (salida) será un texto con estadísticas básicas sobre los links.
 
 
-
+ <img src="./GGP 1.png" alt="visualExample">
+</p>
 
 También podemos combinar --stats y --validate para obtener estadísticas que necesiten de los resultados de la validación.
 
-
+<img src="./GGP 2.png" alt="visualExample">
+</p>
