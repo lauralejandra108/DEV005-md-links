@@ -1,10 +1,10 @@
+// eslint-disable-next-line no-unused-vars
 const colors = require('colors');
 const fs = require('fs');
 const path = require('path');
 const MarkdownIt = require('markdown-it');
 const { JSDOM } = require('jsdom');
 const fetch = require('node-fetch');
-const { resourceLimits } = require('worker_threads');
 
 const route = process.argv[2];
 // Validar si existe una ruta
@@ -71,12 +71,15 @@ const readMd = (arryMd) => new Promise((resolve, reject) => {
 const validateLinks = (links) => Promise.all(links.map((link) => fetch(link.href)
   .then((response) => {
     // const validateLink = {
+    // eslint-disable-next-line no-param-reassign
     link.status = response.status;
+    // eslint-disable-next-line no-param-reassign
     link.statusText = response.statusText;
     // }>
     return link;
   })
   .catch((error) => {
+    // eslint-disable-next-line no-console
     console.log('Error', error);
   })));
 
@@ -100,7 +103,7 @@ module.exports = {
   // eslint-disable-next-line no-dupe-keys
   fileExists,
   linkStats,
-  brokenLinks
+  brokenLinks,
 };
 
 /* const getLinks = (data) => {
